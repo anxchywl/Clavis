@@ -1,0 +1,10 @@
+.dart_tool/
+**/build/
+**/coverage/
+**/lib/src/l10n/generated/
+**/.flutter-plugins-dependencies
+**/*.iml
+**/.idea/
+app_ui/pubspec.lock
+piano_room_feature/pubspec.lock
+.DS_Store
