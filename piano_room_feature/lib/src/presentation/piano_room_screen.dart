@@ -255,7 +255,11 @@ class _WeekBody extends StatelessWidget {
     }
     final ink = roomInk(context);
     final day = week.days[c.selectedDay];
-    final bookings = week.bookings;
+    // a released booking no longer holds anything, so it is not listed
+    final bookings = [
+      for (final booking in week.bookings)
+        if (booking.status != BookingStatus.released) booking,
+    ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
