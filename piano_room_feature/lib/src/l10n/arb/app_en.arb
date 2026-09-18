@@ -1,0 +1,137 @@
+{
+  "@@locale": "en",
+  "title": "Piano Room",
+  "location": "Block D6, Room 055",
+  "previousWeek": "Previous week",
+  "nextWeek": "Next week",
+  "upcoming": "Booking has not opened yet",
+  "open": "Booking is open",
+  "closed": "Booking is closed",
+  "unavailable": "Booking status is unavailable",
+  "quota": "{booked} of {limit} weekly slots used",
+  "@quota": {
+    "placeholders": {
+      "booked": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "remaining": "{count, plural, =0{No bookings remaining} one{{count} booking remaining} other{{count} bookings remaining}}",
+  "@remaining": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "penalty": "Your weekly limit has been reduced. Only an administrator can restore it.",
+  "available": "Available",
+  "otherBooking": "Unavailable",
+  "ownSlot": "Your booking",
+  "notEligible": "Not open for booking",
+  "availableCount": "{count, plural, =0{No free slots} one{{count} free slot} other{{count} free slots}}",
+  "@availableCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "slotLabel": "{date}, {time}, {status}",
+  "@slotLabel": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "myBookings": "My bookings",
+  "noBookings": "You have no bookings for this week.",
+  "release": "Release slot",
+  "releaseBlocked": "Release is unavailable within 10 minutes of the start or after the booking ends.",
+  "confirmed": "Confirmed",
+  "released": "Released",
+  "completed": "Completed",
+  "dropped": "Dropped, counts toward your quota",
+  "noShow": "No-show, counts toward your quota",
+  "confirmTitle": "Confirm booking",
+  "confirm": "Book this slot",
+  "cancel": "Cancel",
+  "done": "Done",
+  "success": "Booking confirmed",
+  "quotaImpact": "After booking: {count} of {limit} weekly slots used.",
+  "@quotaImpact": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "reminder": "Collect the key at reception and leave your ID card. If you cannot come, release the slot at least 10 minutes before it starts.",
+  "loading": "Loading the weekly schedule",
+  "stale": "The schedule may be out of date. {error}",
+  "@stale": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "mutationAcceptedStale": "Your change was accepted, but the schedule could not be refreshed. The displayed schedule may be out of date.",
+  "submitting": "Saving your booking",
+  "empty": "No schedule is available for this week.",
+  "retry": "Try again",
+  "offline": "You are offline. Reconnect and try again. Availability has not been verified.",
+  "conflict": "Someone else booked this slot. The schedule has been refreshed; choose another time.",
+  "conflictUnverified": "Someone else booked this slot. Reconnect to refresh the schedule.",
+  "quotaError": "You have reached your weekly booking limit.",
+  "windowError": "The booking window is closed.",
+  "pastError": "This slot has already started.",
+  "deadlineError": "The release deadline has passed.",
+  "genericError": "This action is unavailable. Refresh the schedule and try again.",
+  "developmentClosed": "Standalone access is available only in debug development builds.",
+  "releaseTitle": "Release this slot?",
+  "releaseSuccess": "Slot released",
+  "weekLabel": "{start} - {end}",
+  "@weekLabel": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "timeRange": "{start} - {end}",
+  "@timeRange": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "opensAt": "Opens {date} at 21:00",
+  "@opensAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  }
+}
