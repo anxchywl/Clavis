@@ -186,3 +186,12 @@ def test_a_development_clock_is_refused_in_production() -> None:
 def test_a_development_clock_needs_an_offset() -> None:
     with pytest.raises(PydanticValidationError, match="UTC offset"):
         settings(DEVELOPMENT_CLOCK="2026-09-20T21:15:00")
+
+
+def test_an_empty_development_clock_from_the_environment_means_the_real_one(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("APP_ENV", "test")
+    monkeypatch.setenv("DEVELOPMENT_CLOCK", "")
+
+    assert Settings.model_validate({}).development_clock is None

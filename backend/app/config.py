@@ -123,6 +123,13 @@ class Settings(BaseSettings):
         has_key = bool(self.host_jwt_public_key) or (self.host_jwt_secret is not None)
         return bool(self.host_jwt_issuer) and has_key
 
+    # an unset variable reaches here from a .env file as an empty string,
+    # which means "the real clock" rather than "a time that failed to parse"
+    @field_validator("development_clock", mode="before")
+    @classmethod
+    def _empty_clock_is_unset(cls, value: object) -> object:
+        return None if value == "" else value
+
     @field_validator("development_clock")
     @classmethod
     def _clock_has_an_offset(cls, value: datetime | None) -> datetime | None:
