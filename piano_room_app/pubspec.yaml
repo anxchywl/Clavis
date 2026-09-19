@@ -1,0 +1,19 @@
+name: piano_room_app
+description: Development host for the Piano Room feature.
+version: 0.1.0+1
+publish_to: none
+environment:
+  sdk: ^3.10.0
+dependencies:
+  flutter:
+    sdk: flutter
+  piano_room_feature:
+    path: ../piano_room_feature
+  app_ui:
+    path: ../app_ui
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+flutter:
+  uses-material-design: true
