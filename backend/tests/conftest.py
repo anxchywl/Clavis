@@ -1,13 +1,16 @@
 from __future__ import annotations
 
+from collections.abc import Iterator
 from datetime import UTC, datetime
 from zoneinfo import ZoneInfo
 
 import pytest
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
+from fastapi.testclient import TestClient
 
 from app.config import AppEnvironment, AuthAdapter, Settings
+from app.main import create_app
 
 ALMATY = ZoneInfo("Asia/Almaty")
 
@@ -49,6 +52,19 @@ def development_env(**overrides: object) -> dict[str, object]:
 @pytest.fixture
 def development_settings() -> Settings:
     return settings(**development_env())
+
+
+def bearer(token: str) -> dict[str, str]:
+    return {"Authorization": f"Bearer {token}"}
+
+
+@pytest.fixture
+def client(development_settings: Settings) -> Iterator[TestClient]:
+    with TestClient(
+        create_app(development_settings),
+        raise_server_exceptions=False,
+    ) as test_client:
+        yield test_client
 
 
 HOST_ISSUER = "https://host.example.edu"
