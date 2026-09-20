@@ -16,7 +16,9 @@ RUN uv sync --frozen --no-dev --no-install-project
 COPY backend/app ./app
 RUN uv sync --frozen --no-dev
 
-RUN addgroup --system clavis && adduser --system --ingroup clavis clavis
+# the database lives on a volume mounted here; a new volume takes this owner
+RUN addgroup --system clavis && adduser --system --ingroup clavis clavis \
+    && mkdir /data && chown clavis:clavis /data
 USER clavis
 
 EXPOSE 8000
