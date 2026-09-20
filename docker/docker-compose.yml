@@ -1,0 +1,26 @@
+# local development: the service and its database volume. run it from the
+# host with uvicorn instead when iterating on the code
+name: clavis
+
+services:
+  clavis-api:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      AUTH_ADAPTER: ${AUTH_ADAPTER:-development}
+      DEVELOPMENT_AUTH_TOKEN: ${DEVELOPMENT_AUTH_TOKEN:-}
+      DEVELOPMENT_AUTH_SUBJECT: ${DEVELOPMENT_AUTH_SUBJECT:-student-a}
+      DEVELOPMENT_OPERATOR_AUTH_TOKEN: ${DEVELOPMENT_OPERATOR_AUTH_TOKEN:-}
+      DEVELOPMENT_CLOCK: ${DEVELOPMENT_CLOCK:-}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-}
+      API_DOCS_ENABLED: ${API_DOCS_ENABLED:-false}
+    volumes:
+      - clavis-data:/data
+    ports:
+      - "127.0.0.1:8000:8000"
+
+volumes:
+  clavis-data:

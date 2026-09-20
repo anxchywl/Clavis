@@ -1,0 +1,14 @@
+# ingress only: the proxy that already owns 80 and 443 reaches the service over
+# its network, and nothing of this project is published on the host
+name: clavis
+
+services:
+  clavis-api:
+    networks:
+      - edge
+      - wished-proxy
+
+networks:
+  wished-proxy:
+    external: true
+    name: wished_wished-app

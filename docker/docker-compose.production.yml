@@ -1,0 +1,67 @@
+name: clavis
+
+services:
+  clavis-api:
+    image: ${BACKEND_IMAGE:-clavis-backend:local}
+    # named explicitly: this service shares a network with several other
+    # compose projects, and a bare `backend` service name would collide
+    # with theirs in the shared DNS namespace
+    container_name: clavis-api
+    restart: unless-stopped
+    environment:
+      APP_ENV: ${APP_ENV:?APP_ENV is required}
+      AUTH_ADAPTER: ${AUTH_ADAPTER:?AUTH_ADAPTER is required}
+      HOST_JWT_ISSUER: ${HOST_JWT_ISSUER:-}
+      HOST_JWT_AUDIENCE: ${HOST_JWT_AUDIENCE:-}
+      HOST_JWT_ALGORITHM: ${HOST_JWT_ALGORITHM:-RS256}
+      HOST_JWT_PUBLIC_KEY: ${HOST_JWT_PUBLIC_KEY:-}
+      HOST_JWT_SECRET: ${HOST_JWT_SECRET:-}
+      HOST_SUBJECT_CLAIM: ${HOST_SUBJECT_CLAIM:-sub}
+      HOST_OPERATOR_CLAIM: ${HOST_OPERATOR_CLAIM:-}
+      HOST_OPERATOR_VALUE: ${HOST_OPERATOR_VALUE:-}
+      DATABASE_PATH: /data/clavis.sqlite3
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-}
+      API_DOCS_ENABLED: ${API_DOCS_ENABLED:-false}
+      REQUEST_BODY_MAX_BYTES: ${REQUEST_BODY_MAX_BYTES:-16384}
+    command:
+      - .venv/bin/uvicorn
+      - app.main:create_app
+      - --factory
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+      - --no-access-log
+      - --proxy-headers
+      - --forwarded-allow-ips
+      - 172.16.0.0/12
+    healthcheck:
+      test:
+        - CMD
+        - .venv/bin/python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=2)
+      interval: 10s
+      timeout: 3s
+      retries: 12
+    # the host runs several projects on 3.7 GiB with no swap, so an unbounded
+    # container here would be taken out of somebody else's budget
+    mem_limit: 192m
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    # the only writable path, and the one thing a redeploy must keep
+    volumes:
+      - clavis-data:/data
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - edge
+
+volumes:
+  clavis-data:
+
+networks:
+  edge:

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 from pydantic import ValidationError as PydanticValidationError
 
@@ -173,6 +175,34 @@ def test_a_wildcard_origin_from_the_environment_is_still_refused(
     # the guard must hold on the path production takes, not only on keywords
     with pytest.raises(PydanticValidationError):
         Settings.model_validate({})
+
+
+# the file a server copies must produce a service that starts. two deployments
+# crash-loops on values that are present but empty in exactly this file, and
+# tests that build settings from keywords would never notice
+def test_the_shipped_production_example_starts_the_service(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    example = Path(__file__).parents[3] / "deploy" / "production.env.example"
+    for line in example.read_text().splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#") or "=" not in stripped:
+            continue
+        key, _, value = stripped.partition("=")
+        monkeypatch.setenv(key, value)
+
+    # the operator supplies these before preflight will pass; everything else
+    # is whatever the example ships, empty values included
+    monkeypatch.setenv("HOST_JWT_ISSUER", "https://issuer.example")
+    monkeypatch.setenv("HOST_JWT_ALGORITHM", "HS256")
+    monkeypatch.setenv("HOST_JWT_SECRET", "s" * 40)
+
+    built = Settings.model_validate({})
+
+    assert built.environment is AppEnvironment.production
+    assert built.auth_adapter is AuthAdapter.host
+    assert built.cors_allowed_origins == []
+    assert built.development_clock is None
 
 
 def test_a_development_clock_is_refused_in_production() -> None:

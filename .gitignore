@@ -9,6 +9,15 @@ app_ui/pubspec.lock
 piano_room_feature/pubspec.lock
 .DS_Store
 
+# secrets and local configuration; only the examples are ever committed
+.env
+.env.*
+*.env
+!.env.example
+!*.env.example
+*.pem
+*.key
+
 # python and the local database
 .venv/
 __pycache__/
