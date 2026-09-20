@@ -10,6 +10,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: any
+  http: ^1.2.0
   timezone: ^0.10.1
   app_ui:
     path: ../app_ui
