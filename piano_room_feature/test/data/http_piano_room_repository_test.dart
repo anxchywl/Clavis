@@ -313,5 +313,23 @@ void main() {
       );
     });
 
+    test('mount against the service under a path prefix', () async {
+      final remote = PianoRoomRemote(
+        baseUri: Uri.parse('http://127.0.0.1:8000/clavis'),
+        accessToken: 'token-value',
+        studentId: 'student-a',
+        allowInsecure: true,
+        client: client,
+        deviceNow: () => device,
+      );
+      await remote.repository.synchronizeClock();
+      expect(
+        client.sent.single.url.toString(),
+        'http://127.0.0.1:8000/clavis/api/v1/clock',
+      );
+      expect(remote.session.studentId, 'student-a');
+      expect(remote.policy.timezone, 'Asia/Almaty');
+      expect(remote.now(), p.local(DateTime.parse(serverTime)));
+    });
   });
 }

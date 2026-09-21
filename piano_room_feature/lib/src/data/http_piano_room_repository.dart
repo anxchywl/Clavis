@@ -280,7 +280,10 @@ class PianoRoomRemote {
     policy = PianoRoomPolicy(location: tz.getLocation('Asia/Almaty'));
     session = PianoRoomSession(studentId: studentId, displayName: studentId);
     repository = HttpPianoRoomRepository(
-      baseUri: baseUri,
+      // a base without a trailing slash would lose its last segment on resolve
+      baseUri: baseUri.path.endsWith('/')
+          ? baseUri
+          : baseUri.replace(path: '${baseUri.path}/'),
       accessToken: accessToken,
       policy: policy,
       session: session,
