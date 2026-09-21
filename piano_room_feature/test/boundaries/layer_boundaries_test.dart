@@ -43,7 +43,8 @@ void main() {
         for (final pattern in [
           r'TextStyle\(',
           r'Color\(',
-          r'Colors\.',
+          // material colours are banned, the kit's AppColors tokens are not
+          r'(?<!App)Colors\.',
           r'EdgeInsets\.[a-zA-Z]+\(\s*\d',
           r'SizedBox\((?:height|width):\s*\d',
           r"(?:Text|SelectableText)\(\s*'[A-Za-z]",
