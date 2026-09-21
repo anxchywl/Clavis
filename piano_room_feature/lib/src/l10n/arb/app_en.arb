@@ -102,6 +102,7 @@
   "deadlineError": "The release deadline has passed.",
   "genericError": "This action is unavailable. Refresh the schedule and try again.",
   "developmentClosed": "Standalone access is available only in debug development builds.",
+  "developmentMisconfigured": "This build is missing the settings it needs to reach the booking service.",
   "releaseTitle": "Release this slot?",
   "releaseSuccess": "Slot released",
   "weekLabel": "{start} - {end}",
