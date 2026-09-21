@@ -22,7 +22,7 @@ Students must be on the room access list. The current spreadsheet accepts only `
 
 Collect the key at reception and leave your ID card. Switch off the lights, lock the door, and leave the room clean. Do not move the piano close to heaters. Report damage to the Piano Room group or `pianoclub@nu.edu.kz`.
 
-If you cannot attend, notify the Piano Room group at least ten minutes before the slot. Releasing a slot in the demo does not send this message.
+If you cannot attend, release the slot in the app at least ten minutes before it starts. Booking and cancelling do not go through the Piano Room group.
 
 ## User experience
 
