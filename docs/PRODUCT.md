@@ -14,11 +14,11 @@ Past slots cannot be booked. A reduced quota can only come from the repository. 
 
 A student can release their own confirmed booking until exactly ten minutes before it starts. Release returns one booking to that week's quota. It is allowed even after the weekly booking window closes.
 
-Confirmed, completed, dropped, and no-show bookings count toward quota. Released bookings do not. Penalties and attendance changes require an administrator. The client never guesses attendance.
+Confirmed, completed, dropped, and no-show bookings count toward quota. Released bookings do not. Penalties and attendance changes require an administrator. Operators record attendance after a slot starts and set a student's weekly limit through the backend. The client never guesses attendance.
 
 ## Access and room rules
 
-Students must be on the room access list. The current spreadsheet accepts only `@nu.edu.kz` accounts. The demo does not verify either rule.
+Students must be on the room access list. The current spreadsheet accepts only `@nu.edu.kz` accounts. Neither the app nor the backend checks either rule yet.
 
 Collect the key at reception and leave your ID card. Switch off the lights, lock the door, and leave the room clean. Do not move the piano close to heaters. Report damage to the Piano Room group or `pianoclub@nu.edu.kz`.
 
@@ -32,8 +32,8 @@ Booking success appears only after repository confirmation. A conflict refreshes
 
 All visible and semantic text is available in English, Russian, and Kazakh. Dates and times always use the room timezone.
 
-## Demo limits
+## Demo and backend limits
 
-The default demo time is 20 September 2026 at 21:15 in Almaty. The host also includes offline, conflict, empty, closed, upcoming, penalty, dropped, and no-show scenarios.
+The sample mode runs at 20 September 2026 at 21:15 in Almaty. It also includes offline, conflict, empty, closed, upcoming, penalty, dropped, and no-show scenarios. Its quota and penalties are only fixtures.
 
-The sample quota and penalties are only fixtures. There is no real authentication, backend, email verification, cross-device locking, attendance system, or group notification.
+The backend stores bookings, attendance, and limits, and enforces every rule above with server time. It still depends on a host that issues verified tokens. There is no operator screen, email verification, access-list check, or group notification yet.

@@ -1,7 +1,7 @@
 # Repository rules
 
 Piano Room follows `piano_room_app -> piano_room_feature -> app_ui`.
-Domain is pure Dart; application depends on domain interfaces; presentation never imports data. Data factories assemble dependencies. The host owns identity, theme and locale. Never store tokens or describe mocks as production enforcement.
+Domain is pure Dart; application depends on domain interfaces; presentation never imports data. Data factories assemble dependencies. The host owns identity, theme and locale. Never store tokens or describe mocks as production enforcement. The backend keeps domain free of frameworks and storage, application behind protocols, and every rule decided with server time.
 
 Use existing AppColors, AppTextStyles and AppSpacing tokens. Every visible string belongs in EN/RU/KK ARB files. No emoji. Comments explain non-obvious intent, lowercase without trailing punctuation. Keep changes scoped. Use flutter_test and hand-written fakes only.
 
