@@ -1,0 +1,17 @@
+title = "clavis secret scanning"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Placeholders and fixtures that are not credentials"
+paths = [
+  '''\.env\.example$''',
+  '''deploy/.*\.env\.example$''',
+]
+regexTarget = "match"
+regexes = [
+  # test fixtures name tokens but hold no real value
+  '''(student|operator)-token-value''',
+  '''request-key-\d+''',
+]

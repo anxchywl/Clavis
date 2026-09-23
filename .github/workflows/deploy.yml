@@ -1,0 +1,103 @@
+name: Deploy
+
+# a release is a tag, and only a tag: pushing to main validates, it does not
+# ship. the manual trigger exists so a rollback does not need a new tag
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      revision:
+        description: "commit to deploy; defaults to the one this run checks out"
+        required: false
+
+# reading the repository and its check runs is all a deployment needs from the
+# api; the host is reached over ssh with a key, not with a github token
+permissions:
+  contents: read
+  checks: read
+  actions: read
+
+# two deployments overlapping would race for the same containers
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to the shared host
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      # a missing secret must stop the run before anything is touched, and say
+      # which one rather than failing later inside ssh
+      - name: Check the deployment is configured
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          missing=
+          for name in SSH_HOST SSH_USER DEPLOY_PATH SSH_PRIVATE_KEY SSH_KNOWN_HOSTS; do
+            eval "value=\${$name}"
+            [ -n "$value" ] || missing="$missing $name"
+          done
+          if [ -n "$missing" ]; then
+            echo "deployment is not configured; missing secrets:$missing" >&2
+            exit 1
+          fi
+
+      # the revision is the one CI tested, never "whatever main is now"
+      - name: Require a green CI run for this revision
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REVISION: ${{ github.sha }}
+        run: |
+          conclusion=$(gh api "repos/${{ github.repository }}/actions/runs?head_sha=$REVISION" \
+            --jq '[.workflow_runs[] | select(.name == "CI")] | first | .conclusion // "none"')
+          echo "CI for $REVISION: $conclusion"
+          [ "$conclusion" = "success" ] ||
+            { echo "refusing to deploy a revision CI has not passed" >&2; exit 1; }
+
+      # host keys are pinned; an unverified host is the ssh equivalent of
+      # turning off certificate checking
+      - name: Authorise the ssh session
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Deploy the tested revision
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          REVISION: ${{ github.sha }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes \
+            "$SSH_USER@$SSH_HOST" \
+            "set -eu
+             cd '$DEPLOY_PATH'
+             git fetch --tags --prune origin
+             git checkout --detach '$REVISION'
+             DEPLOY_REF='$REVISION' ENV_FILE='$DEPLOY_PATH/.env.production' ./deploy/deploy.sh"
+
+      # the script health-checks from the host; this checks the same endpoint
+      # from outside, which is the path a student's phone actually takes
+      - name: Confirm the service answers from outside the host
+        env:
+          DOMAIN: ${{ vars.CLAVIS_API_DOMAIN }}
+        run: |
+          [ -n "$DOMAIN" ] || { echo "CLAVIS_API_DOMAIN variable is not set" >&2; exit 1; }
+          curl --fail --silent --show-error --max-time 10 "https://$DOMAIN/health/ready"
