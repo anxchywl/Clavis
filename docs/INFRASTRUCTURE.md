@@ -55,13 +55,30 @@ The service reads its settings from the environment. `.env.example` lists them w
 - `DATABASE_PATH` points at one SQLite file. In a container it is `/data/clavis.sqlite3` on a volume.
 - `/health/live` answers if the process is up. `/health/ready` also checks the database.
 
-## Deploy
+## CI and deployment
 
-`deploy/deploy.sh` runs `deploy/preflight.sh`, builds the image for the current commit, starts it, and waits for `/health/ready` over HTTPS. If any step fails, it restores the previous image. Preflight refuses a dirty tree, development tokens, a development clock, API docs, or a missing issuer or key.
+`CI` runs on every push to `main` and every pull request. It checks the backend (format, lint, types, bandit, tests with a 90 percent floor) and the Flutter packages (format, analyze, tests, 85 percent feature floor). It also builds a debug APK and shellchecks the deploy scripts. It validates both production compose shapes, builds the image, and scans the full history with gitleaks and both lockfiles with osv-scanner. Actions are pinned to commit SHAs. `backend/tests/unit/test_ci_policy.py` fails the build if a pin, a permission block, a scan, or a deployment guard is removed.
 
-On a host where another project's Caddy owns ports 80 and 443, the service joins that proxy's network and publishes no port. Add a site for `CLAVIS_API_DOMAIN` to that proxy.
+A tag matching `v*.*.*` deploys. `Deploy` stops before touching anything if a secret is missing or CI has not passed on that exact commit. It connects over SSH with a pinned host key and runs `deploy/deploy.sh` in the checkout on the host. Then it checks `/health/ready` from outside. Running the workflow by hand with an older commit is the rollback.
 
-The container runs as a non-root user on a read-only root file system. The volume is its only writable path. Back up the SQLite file on the volume. The service is one process with one connection. A second replica needs a shared database first.
+| Name | Kind, in the `production` environment | Value |
+|---|---|---|
+| `SSH_HOST` | secret | the shared host |
+| `SSH_USER` | secret | `deploy`, which owns the checkout and may run docker |
+| `SSH_PRIVATE_KEY` | secret | a key used only by this repository's workflow |
+| `SSH_KNOWN_HOSTS` | secret | `ssh-keyscan` output for the host |
+| `DEPLOY_PATH` | secret | `/home/deploy/clavis/repo` |
+| `CLAVIS_API_DOMAIN` | variable | `clavis.anxchywl.dev` |
+
+`deploy/deploy.sh` runs `deploy/preflight.sh`, builds the image for the commit, starts it, and waits for `/health/ready` over HTTPS. If any step fails, it restores the previous image. Preflight refuses a dirty tree, development tokens, a development clock, API docs, a missing issuer or key, or a missing backup directory.
+
+The host keeps `.env.production` next to the checkout, readable only by `deploy`. There is no separate host app yet, so the token issuer is this service's own HS256 secret, generated on the host and stored only in that file. When a real host app exists, move to RS256 and keep only its public key here.
+
+Another project's Caddy owns ports 80 and 443 on the host. The service joins that proxy's network and publishes no port. Its site block lives in the wished repository's `infra/caddy/Caddyfile.production` and proxies to `clavis-api:8000`.
+
+The container runs as uid 10001 on a read-only root file system. The volume is its only writable path. `clavis-backup` takes an online SQLite backup once a day into `/var/backups/clavis` on the host, keeps the newest `BACKUP_KEEP` copies, and checks each copy's integrity. To restore one, stop `clavis-api`, copy the file over `/data/clavis.sqlite3` in the `clavis_clavis-data` volume, and start it again. The backups stay on the same disk, so they cover mistakes, not a lost host.
+
+The service is one process with one connection. A second replica needs a shared database first.
 
 ## Verify changes
 
