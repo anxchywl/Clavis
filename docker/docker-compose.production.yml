@@ -60,6 +60,43 @@ services:
     networks:
       - edge
 
+  # a daily online copy of the database to the host, the same shape as the
+  # other projects' backup containers. /var/backups/clavis must exist and
+  # belong to uid 10001 before the first run
+  clavis-backup:
+    image: ${BACKEND_IMAGE:-clavis-backend:local}
+    container_name: clavis-backup
+    restart: unless-stopped
+    depends_on:
+      clavis-api:
+        condition: service_healthy
+    entrypoint:
+      - sh
+      - -c
+      - |
+        while true; do
+          if .venv/bin/python -m app.infrastructure.store.backup --keep "$$BACKUP_KEEP"; then
+            echo "$$(date -Iseconds) backup ok"
+          else
+            echo "$$(date -Iseconds) BACKUP FAILED"
+          fi
+          sleep 86400
+        done
+    environment:
+      BACKUP_KEEP: ${BACKUP_KEEP:-14}
+    mem_limit: 64m
+    read_only: true
+    tmpfs:
+      - /tmp:size=8m,mode=1777
+    volumes:
+      - clavis-data:/data
+      - /var/backups/clavis:/backups
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    network_mode: none
+
 volumes:
   clavis-data:
 

@@ -43,6 +43,10 @@ if [ "$target" = "shared-host" ]; then
     fail "the shared proxy network wished_wished-app does not exist"
 fi
 
+# the backup container writes here as the image's fixed user
+[ "$(stat -c %u /var/backups/clavis 2>/dev/null)" = "10001" ] ||
+  fail "/var/backups/clavis must exist and belong to uid 10001"
+
 git -C "$repo_dir" diff --quiet HEAD ||
   fail "the working tree is dirty; deploy a committed revision"
 
