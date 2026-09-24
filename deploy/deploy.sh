@@ -26,7 +26,17 @@ fi
 previous_image=$($compose ps -q clavis-api | xargs -r docker inspect --format '{{.Config.Image}}')
 
 DEPLOYMENT_TARGET=$target ENV_FILE=$env_file "$repo_dir/deploy/preflight.sh"
-docker build --pull --tag "$image" --file "$repo_dir/backend/Dockerfile" "$repo_dir"
+
+# another project on this host logs docker in to ghcr.io with a token that
+# expires, and a stale login fails even anonymous pulls of public images, so
+# the build reads no shared registry credentials at all
+build_config=$(mktemp -d)
+if ! DOCKER_CONFIG=$build_config docker build --pull --tag "$image" \
+  --file "$repo_dir/backend/Dockerfile" "$repo_dir"; then
+  rm -rf "$build_config"
+  exit 1
+fi
+rm -rf "$build_config"
 
 rollback() {
   status=$?
