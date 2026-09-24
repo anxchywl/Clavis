@@ -52,6 +52,12 @@ cd piano_room_app && flutter run --dart-define=PIANO_BACKEND=remote \
   --dart-define=PIANO_ACCESS_TOKEN=<token> --dart-define=PIANO_STUDENT_ID=student-a
 ```
 
+Against production, with a 12-hour token the server issues over SSH:
+
+```bash
+./scripts/run_production.sh
+```
+
 ```bash
 ./scripts/verify.sh    # the backend and app checks, tests and coverage floors
 ```

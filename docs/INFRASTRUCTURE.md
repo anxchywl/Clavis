@@ -47,6 +47,16 @@ Plain HTTP is accepted only for `localhost`, `127.0.0.1`, `::1`, or `10.0.2.2`, 
 
 `docker compose --env-file .env -f docker/docker-compose.yml up --build` runs the same service in a container, with the database on a named volume.
 
+## Run against production
+
+```sh
+./scripts/run_production.sh -d <device>
+```
+
+The script asks the server over SSH, as `deploy`, to issue a token for one student that expires in 12 hours. It passes the token straight into the build defines and never prints it. `PIANO_STUDENT_ID` picks the student and defaults to `student-a`. Remote mode uses `https://clavis.anxchywl.dev` unless `PIANO_API_BASE_URL` names another backend.
+
+This is a stopgap while no host app signs students in. `app.commands.issue_token` works only on the host that holds the shared secret, refuses an RS* issuer, and never issues a token longer than 24 hours. Add `--operator` for an operator token. A token defined into a build can be read back out of it, so this is for debug builds on your own device only. CI refuses a credential define.
+
 ## Settings
 
 The service reads its settings from the environment. `.env.example` lists them with comments. The main rules:
