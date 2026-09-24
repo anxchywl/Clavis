@@ -8,8 +8,11 @@ import 'package:piano_room_feature/piano_room_remote.dart';
 bool developmentAccessAllowed({required bool debug, required bool requested}) =>
     debug && requested;
 
-// sample runs on fixtures in memory; remote talks to the backend named here
-// with a development token, and neither is a production identity
+const String productionApiBaseUrl = 'https://clavis.anxchywl.dev';
+
+// sample runs on fixtures in memory; remote talks to production unless a base
+// url names another backend, and its token comes from the developer, never
+// from a sign-in this host does not have
 @visibleForTesting
 PianoRoomRemote? resolveRemote({
   required String backend,
@@ -22,7 +25,9 @@ PianoRoomRemote? resolveRemote({
     case 'sample':
       return null;
     case 'remote':
-      final uri = Uri.tryParse(apiBaseUrl);
+      final uri = Uri.tryParse(
+        apiBaseUrl.isEmpty ? productionApiBaseUrl : apiBaseUrl,
+      );
       if (uri == null || !uri.hasScheme || uri.host.isEmpty) {
         throw ArgumentError.value(apiBaseUrl, 'PIANO_API_BASE_URL');
       }

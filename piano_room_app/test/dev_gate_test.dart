@@ -23,7 +23,11 @@ void main() {
     final remote = resolve('remote', 'http://127.0.0.1:8000');
     expect(remote?.session.studentId, 'student-a');
     expect(resolve('remote', 'https://clavis.example.edu'), isNotNull);
-    expect(() => resolve('remote', ''), throwsArgumentError);
+    expect(
+      resolve('remote', '')?.repository.baseUri,
+      Uri.parse('$productionApiBaseUrl/'),
+    );
+    expect(() => resolve('remote', 'not a url'), throwsArgumentError);
     expect(
       () => resolve('remote', 'http://127.0.0.1:8000', debug: false),
       throwsArgumentError,
